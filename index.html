@@ -450,7 +450,7 @@
      FETCH (idêntico ao original que funciona)
   ════════════════════════════════════════════ */
   async function buscarDadosDaAba(nomeAba) {
-    const url = `https://docs.google.com/spreadsheets/d/${PLANILHA_ID}/gviz/tq?sheet=${encodeURIComponent(nomeAba)}&tqx=out:json`;
+    const url = `https://docs.google.com/spreadsheets/d/${PLANILHA_ID}/gviz/tq?sheet=${encodeURIComponent(nomeAba)}&tqx=out:json&t=${Date.now()}`;
     const resposta = await fetch(url);
     const texto    = await resposta.text();
     const jsonTexto = texto.substring(47, texto.length - 2);
