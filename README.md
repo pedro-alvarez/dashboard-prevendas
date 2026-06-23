@@ -1,0 +1,1 @@
+Dashboard de desempenho de pré-vendas do time Mundo Invest, exibe em tempo real agendamentos, metas, taxa de comparecimento e vendas por SDR, integrado ao Google Sheets com rotação automática entre a visão geral e individual de cada consultor.
