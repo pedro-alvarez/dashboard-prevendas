@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pré-vendas · Mundo Invest</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0b1829;
+      --surface:     #112240;
+      --surface2:    #1a3055;
+      --border:      rgba(255,255,255,0.07);
+      --text:        #f0f4ff;
+      --muted:       #7a90b0;
+      --blue:        #4169e1;
+      --blue-bright: #5b7fff;
+      --blue-bg:     rgba(65,105,225,0.15);
+      --green:       #10b981;
+      --green-bg:    rgba(16,185,129,0.12);
+      --amber:       #f59e0b;
+      --amber-bg:    rgba(245,158,11,0.12);
+      --red:         #f43f5e;
+      --red-bg:      rgba(244,63,94,0.12);
+      --font:        'DM Sans', sans-serif;
+      --mono:        'DM Mono', monospace;
+    }
+
+    html, body {
+      height: 100%; overflow: hidden;
+      font-family: var(--font);
+      background: var(--bg); color: var(--text);
+    }
+
+    /* ── PAGE ── */
+    .page {
+      height: 100vh;
+      display: flex; flex-direction: column;
+      padding: 7px 16px 8px; gap: 6px;
+    }
+
+    /* ── HEADER ── */
+    .page-header {
+      display: flex; align-items: center; gap: 12px;
+      flex-shrink: 0; padding-bottom: 7px;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-logo {
+      background: #ffffff; border-radius: 7px;
+      padding: 3px 8px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .page-logo img { height: 26px; width: auto; display: block; }
+    .header-divider { width:1px; height:24px; background:var(--border); flex-shrink:0; }
+    .header-titles { flex:1; }
+    .page-title {
+      font-size:9px; font-weight:500; letter-spacing:0.12em;
+      text-transform:uppercase; color:var(--muted);
+    }
+    .page-subtitle { font-size:15px; font-weight:700; letter-spacing:-0.02em; line-height:1.1; }
+    /* SDR nav no header — sem quebra de linha */
+    .header-sdr-nav { flex:1; display:flex; flex-direction:column; justify-content:center; gap:4px; min-width:0; overflow:hidden; max-width:calc(100% - 220px); }
+    .header-controls { display:flex; align-items:center; gap:8px; flex-shrink:0; min-width:200px; }
+    .control-label {
+      font-size:9px; font-weight:500; letter-spacing:0.08em;
+      text-transform:uppercase; color:var(--muted); margin-bottom:3px;
+    }
+    .month-select {
+      border:1px solid var(--border); background:var(--surface2); color:var(--text);
+      padding:5px 10px; border-radius:7px; font-size:12px; font-family:var(--font);
+      min-width:130px; outline:none; cursor:pointer;
+    }
+    .month-select:focus { border-color:var(--blue); }
+    .period-badge {
+      font-family:var(--mono); font-size:9px; color:var(--blue-bright);
+      background:var(--blue-bg); padding:4px 10px; border-radius:20px;
+      border:1px solid rgba(91,127,255,0.25);
+    }
+
+    /* ── STATUS ── */
+    .status-message {
+      display:none; padding:5px 10px; border-radius:7px; font-size:11px; flex-shrink:0;
+    }
+    .status-loading { display:block; background:var(--blue-bg); color:var(--blue-bright); }
+    .status-error   { display:block; background:var(--red-bg);  color:var(--red); }
+
+    /* ── KPI ROW ── */
+    .kpi-section {
+      display:grid; grid-template-columns:repeat(7,minmax(0,1fr));
+      gap:6px; flex-shrink:0;
+    }
+    .kpi {
+      background:var(--surface); border-radius:8px; padding:7px 10px;
+      border:1px solid var(--border); position:relative; overflow:hidden;
+    }
+    .kpi::before {
+      content:''; position:absolute; top:0; left:0;
+      width:3px; height:100%;
+      background:var(--kpi-color, var(--blue)); border-radius:8px 0 0 8px;
+    }
+    .kpi-label {
+      font-size:8px; font-weight:600; text-transform:uppercase;
+      letter-spacing:0.1em; color:var(--muted); margin-bottom:3px;
+    }
+    .kpi-val {
+      font-size:18px; font-weight:700; letter-spacing:-0.03em; line-height:1;
+      font-family:var(--mono);
+    }
+    .kpi-sub { font-size:9px; color:var(--muted); margin-top:3px; font-family:var(--mono); }
+    .kpi-val.green { color:var(--green); }
+    .kpi-val.red   { color:var(--red); }
+    .kpi-val.amber { color:var(--amber); }
+
+    /* ── MAIN BODY (2 cols) ── */
+    .main-body {
+      flex:1; min-height:0;
+      display:grid; grid-template-columns:380px 1fr;
+      gap:6px;
+    }
+
+    /* ── LEFT COL ── */
+    .charts-col {
+      display:flex; flex-direction:column; gap:8px; min-height:0;
+    }
+    .chart-box {
+      background:var(--surface); border-radius:10px; padding:12px 14px;
+      border:1px solid var(--border); display:flex; flex-direction:column;
+      flex:1; min-height:0;
+    }
+    .chart-box-title {
+      font-size:10px; font-weight:600; text-transform:uppercase;
+      letter-spacing:0.1em; color:var(--muted); margin-bottom:6px; flex-shrink:0;
+    }
+    .chart-legend {
+      display:flex; gap:12px; flex-wrap:wrap; margin-bottom:6px; flex-shrink:0;
+    }
+    .legend-item { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--muted); }
+    .legend-dot  { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+    .chart-canvas-wrap { flex:1; min-height:0; position:relative; }
+
+    /* ── RIGHT COL: spotlight ── */
+    .spotlight-panel {
+      display:flex; flex-direction:column; gap:8px; min-height:0;
+    }
+
+    /* Botões em linha única, sem quebrar */
+    .sdr-buttons { display:flex; gap:4px; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; }
+    .sdr-buttons::-webkit-scrollbar { display:none; }
+    .sdr-btn {
+      padding:3px 9px; border-radius:20px; border:1px solid var(--border);
+      background:var(--surface2); color:var(--muted); font-size:10px;
+      font-family:var(--font); font-weight:500; cursor:pointer;
+      transition: all .15s; white-space:nowrap; flex-shrink:0;
+    }
+    .sdr-btn:hover { border-color:var(--blue); color:var(--text); }
+    .sdr-btn.active {
+      background:var(--blue); border-color:var(--blue); color:#fff;
+      box-shadow:0 0 12px rgba(65,105,225,0.35);
+    }
+
+    /* Countdown */
+    .countdown-wrap { display:flex; align-items:center; gap:8px; }
+    .countdown-track { flex:1; height:3px; background:var(--surface2); border-radius:99px; overflow:hidden; }
+    .countdown-fill  { height:100%; border-radius:99px; background:var(--blue-bright); transition:width .9s linear,background .2s; }
+    .countdown-label { font-family:var(--mono); font-size:10px; color:var(--muted); width:24px; text-align:right; }
+
+    /* Spotlight content */
+    .spotlight-content { flex:1; min-height:0; overflow:hidden; }
+
+    /* Grade geral */
+    .sdr-grid {
+      display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:6px; height:100%;
+    }
+    .sdr-card {
+      background:var(--surface2); border-radius:8px; padding:10px 12px;
+      border:1px solid var(--border); display:flex; flex-direction:column; gap:6px;
+    }
+    .sdr-card-top { display:flex; justify-content:space-between; align-items:flex-start; gap:6px; }
+    .sdr-name { font-size:13px; font-weight:600; letter-spacing:-0.01em; }
+    .canal-tag {
+      font-size:9px; font-weight:500; letter-spacing:0.05em; text-transform:uppercase;
+      padding:2px 8px; border-radius:20px; white-space:nowrap; flex-shrink:0;
+    }
+    .canal-leads  { background:var(--blue-bg);  color:var(--blue-bright); }
+    .canal-recicl { background:var(--amber-bg); color:var(--amber); }
+    .canal-out    { background:rgba(99,102,241,0.12); color:#818cf8; }
+    .canal-voip   { background:rgba(168,85,247,0.12); color:#c084fc; }
+    .canal-none   { background:var(--surface); color:var(--muted); }
+    .sdr-stats {
+      display:grid; grid-template-columns:repeat(4,1fr);
+      gap:0; border-radius:6px; overflow:hidden;
+    }
+    .stat { text-align:center; padding:4px 2px; }
+    .stat + .stat { border-left:1px solid var(--border); }
+    .stat-num { font-size:16px; font-weight:700; font-family:var(--mono); }
+    .stat-lbl { font-size:9px; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); margin-top:1px; }
+    .stat-num.noshow-hi  { color:var(--red); }
+    .stat-num.noshow-mid { color:var(--amber); }
+    .stat-num.noshow-ok  { color:var(--green); }
+    .stat-num.vendas-val { color:var(--green); }
+    .progress-top  { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+    .progress-label{ font-size:9px; color:var(--muted); }
+    .progress-badge{ font-size:9px; font-weight:600; font-family:var(--mono); padding:1px 7px; border-radius:20px; }
+    .badge-g { background:var(--green-bg); color:var(--green); }
+    .badge-a { background:var(--amber-bg); color:var(--amber); }
+    .badge-r { background:var(--red-bg);   color:var(--red); }
+    .prog-track { background:var(--surface); border-radius:99px; height:4px; overflow:hidden; }
+    .prog-fill  { height:100%; border-radius:99px; }
+    .no-meta    { font-size:10px; color:var(--muted); font-style:italic; }
+
+    /* ── Spotlight individual ── */
+    .spotlight-single {
+      height:100%; display:flex; flex-direction:column; gap:6px; overflow:hidden;
+    }
+    /* Header: nome + canal lado a lado, compacto */
+    .spot-header {
+      display:flex; justify-content:space-between; align-items:center; gap:8px;
+      flex-shrink:0;
+    }
+    .spot-name-wrap { display:flex; align-items:baseline; gap:10px; }
+    .spot-name      { font-size:20px; font-weight:700; letter-spacing:-0.02em; }
+    .spot-comercial { font-size:10px; color:var(--muted); }
+    /* 4 stats em linha horizontal compacta */
+    .spot-stats {
+      display:grid; grid-template-columns:repeat(4,1fr);
+      gap:5px; flex-shrink:0;
+    }
+    .spot-stat {
+      background:var(--surface); border-radius:8px; padding:7px 8px;
+      border:1px solid var(--border); position:relative; overflow:hidden;
+      text-align:center;
+    }
+    .spot-stat::before {
+      content:''; position:absolute; top:0; left:0; width:100%; height:3px;
+      background:var(--stat-color, var(--blue));
+    }
+    .spot-stat-num { font-size:22px; font-weight:700; font-family:var(--mono); line-height:1.1; }
+    .spot-stat-lbl { font-size:9px; text-transform:uppercase; letter-spacing:0.07em; color:var(--muted); margin-top:1px; }
+    /* Barra de atingimento compacta */
+    .spot-progress-box {
+      background:var(--surface); border-radius:8px; padding:8px 12px;
+      border:1px solid var(--border); flex-shrink:0;
+    }
+    .spot-prog-top  { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
+    .spot-prog-label{ font-size:10px; color:var(--muted); }
+    .spot-prog-pct  { font-size:14px; font-weight:700; font-family:var(--mono); }
+    .spot-prog-track{ background:var(--surface2); border-radius:99px; height:6px; overflow:hidden; }
+    .spot-prog-fill { height:100%; border-radius:99px; }
+    /* Gráfico ocupa todo o espaço restante */
+    .spot-chart-box {
+      background:var(--surface); border-radius:8px; padding:8px 12px;
+      border:1px solid var(--border); flex:1; min-height:0;
+      display:flex; flex-direction:column;
+    }
+    .spot-chart-title{ font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:4px; flex-shrink:0; }
+    .spot-canvas-wrap{ flex:1; min-height:0; position:relative; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="page-logo">
+      <img src="logo.png" alt="Mundo Invest">
+    </div>
+    <div class="header-divider"></div>
+    <div class="header-titles">
+      <p class="page-title">Pré-vendas · Relatório de desempenho</p>
+      <h1 class="page-subtitle">Resultados do time</h1>
+    </div>
+
+    <!-- Filtro SDR + countdown no header -->
+    <div class="header-sdr-nav">
+      <div class="sdr-buttons" id="sdrButtons"></div>
+      <div class="countdown-wrap">
+        <div class="countdown-track">
+          <div class="countdown-fill" id="countdownFill" style="width:100%"></div>
+        </div>
+        <span class="countdown-label" id="countdownLabel">15s</span>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <div>
+        <p class="control-label">Escolha o mês</p>
+        <select id="mesSelect" class="month-select">
+          <option value="Janeiro">Janeiro</option>
+          <option value="Fevereiro">Fevereiro</option>
+          <option value="Março">Março</option>
+          <option value="Abril">Abril</option>
+          <option value="Maio">Maio</option>
+          <option value="Junho">Junho</option>
+          <option value="Julho">Julho</option>
+          <option value="Agosto">Agosto</option>
+          <option value="Setembro">Setembro</option>
+          <option value="Outubro">Outubro</option>
+          <option value="Novembro">Novembro</option>
+          <option value="Dezembro">Dezembro</option>
+        </select>
+      </div>
+      <span class="period-badge" id="periodBadge">—</span>
+    </div>
+  </div>
+
+  <!-- STATUS -->
+  <div id="statusMessage" class="status-message"></div>
+
+  <!-- KPIs -->
+  <div class="kpi-section">
+    <div class="kpi" style="--kpi-color:var(--blue)">
+      <p class="kpi-label">Meta do período</p>
+      <p class="kpi-val" id="kpiMetaPeriodo">0</p>
+    </div>
+    <div class="kpi" style="--kpi-color:var(--green)">
+      <p class="kpi-label">Realizado</p>
+      <p class="kpi-val green" id="kpiRealizado">0</p>
+      <p class="kpi-sub" id="kpiRealizadoSub">0% da meta</p>
+    </div>
+    <div class="kpi" style="--kpi-color:var(--red)">
+      <p class="kpi-label">Gap da meta</p>
+      <p class="kpi-val red" id="kpiGapMeta">0</p>
+      <p class="kpi-sub">reuniões em falta</p>
+    </div>
+    <div class="kpi" style="--kpi-color:var(--amber)">
+      <p class="kpi-label">No-show geral</p>
+      <p class="kpi-val amber" id="kpiNoShowGeral">0%</p>
+      <p class="kpi-sub" id="kpiNoShowSub">de 0 agendadas</p>
+    </div>
+    <div class="kpi" style="--kpi-color:var(--blue-bright)">
+      <p class="kpi-label">Total agendadas</p>
+      <p class="kpi-val" id="kpiTotalAgendadas">0</p>
+    </div>
+    <div class="kpi" style="--kpi-color:var(--green)">
+      <p class="kpi-label">Comparecimento</p>
+      <p class="kpi-val" id="kpiComparecimento">0%</p>
+    </div>
+    <div class="kpi" style="--kpi-color:var(--green)">
+      <p class="kpi-label">Total vendas</p>
+      <p class="kpi-val green" id="kpiTotalVendas">0</p>
+    </div>
+  </div>
+
+  <!-- MAIN BODY -->
+  <div class="main-body">
+
+    <!-- Coluna esquerda: gráficos -->
+    <div class="charts-col">
+      <div class="chart-box">
+        <div class="chart-box-title">Realizadas vs meta por SDR</div>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#10b981"></span>Acima/na meta</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span>60–99%</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#f43f5e"></span>Abaixo de 60%</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#4a5568;border:1px dashed #7a90b0"></span>Meta</span>
+        </div>
+        <div class="chart-canvas-wrap">
+          <canvas id="cAting"></canvas>
+        </div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-box-title">Vendas por SDR</div>
+        <div class="chart-canvas-wrap">
+          <canvas id="cVendas"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coluna direita: spotlight -->
+    <div class="spotlight-panel">
+      <div class="spotlight-content" id="spotlightContent"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  /* ════════════════════════════════════════════
+     CONFIGURAÇÃO
+  ════════════════════════════════════════════ */
+  const PLANILHA_ID  = "1M-riwAUpISRY6CHWY4qi3ijOCHeLOMKCnkNXeUc-Jbs";
+  const ROTATION_SEC = 15;
+
+  let chartAting  = null;
+  let chartVendas = null;
+  let chartSpot   = null;
+  let allSDRs     = [];
+  let rotationIdx = 0;
+  let rotationTimer   = null;
+  let countdownTimer  = null;
+  let secondsLeft = ROTATION_SEC;
+  let manualLock  = false;
+
+  /* ════════════════════════════════════════════
+     HELPERS  (idênticos ao original que funciona)
+  ════════════════════════════════════════════ */
+  function mostrarStatus(texto, tipo) {
+    const box = document.getElementById("statusMessage");
+    box.textContent = texto;
+    box.className = "status-message " + (tipo === "error" ? "status-error" : "status-loading");
+  }
+  function esconderStatus() {
+    const box = document.getElementById("statusMessage");
+    box.textContent = "";
+    box.className = "status-message";
+  }
+  function parseNumero(valor) {
+    if (valor === null || valor === undefined) return 0;
+    if (typeof valor === "number") return isNaN(valor) ? 0 : valor;
+    let texto = String(valor).trim();
+    if (!texto || texto === "#DIV/0!") return 0;
+    texto = texto.replace(/\./g, "").replace(",", ".").replace("%", "").replace(/[^\d.-]/g, "");
+    const numero = Number(texto);
+    return isNaN(numero) ? 0 : numero;
+  }
+  function formatarNumero(valor) {
+    return new Intl.NumberFormat("pt-BR").format(valor);
+  }
+  function formatarPercentual(valor) {
+    return valor.toFixed(1).replace(".", ",") + "%";
+  }
+  function canalClass(c) {
+    if (!c || c === "—") return "canal-none";
+    const canal = String(c).toLowerCase();
+    if (canal.includes("lead"))  return "canal-leads";
+    if (canal.includes("recic")) return "canal-recicl";
+    if (canal.includes("out"))   return "canal-out";
+    if (canal.includes("voip"))  return "canal-voip";
+    return "canal-none";
+  }
+  function barColor(p) { return p >= 100 ? "#10b981" : p >= 60 ? "#f59e0b" : "#f43f5e"; }
+  function formatNome(nome) {
+    const parts = nome.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0];
+    // Abreviar último sobrenome: "Tiago Martinez" → "Tiago M."
+    return parts[0] + ' ' + parts[parts.length - 1][0].toUpperCase() + '.';
+  }
+  function nsTextClass(p) { return p >= 70 ? "noshow-hi" : p >= 55 ? "noshow-mid" : "noshow-ok"; }
+  function badgeClass(p)  { return p >= 100 ? "badge-g" : p >= 60 ? "badge-a" : "badge-r"; }
+  function getMesAtualNome() {
+    const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                   "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+    return meses[new Date().getMonth()];
+  }
+
+  /* ════════════════════════════════════════════
+     FETCH (idêntico ao original que funciona)
+  ════════════════════════════════════════════ */
+  async function buscarDadosDaAba(nomeAba) {
+    const url = `https://docs.google.com/spreadsheets/d/${PLANILHA_ID}/gviz/tq?sheet=${encodeURIComponent(nomeAba)}&tqx=out:json`;
+    const resposta = await fetch(url);
+    const texto    = await resposta.text();
+    const jsonTexto = texto.substring(47, texto.length - 2);
+    const json = JSON.parse(jsonTexto);
+    if (!json.table || !json.table.rows) throw new Error("Não foi possível ler a aba selecionada.");
+    return json.table.rows.map(row =>
+      (row.c || []).map(cell => (cell && cell.v !== null && cell.v !== undefined ? cell.v : ""))
+    );
+  }
+
+  /* ════════════════════════════════════════════
+     EXTRAIR DADOS
+     Baseado no original — coluna Vendas adicionada
+     em F (índice 5), deslocando as demais
+  ════════════════════════════════════════════ */
+  function extrairDadosPlanilha(linhas) {
+    let indiceCabecalhoSDR = -1;
+    let indiceResumo       = -1;
+
+    for (let i = 0; i < linhas.length; i++) {
+      const primeiraColuna = String(linhas[i][0] || "").trim().toLowerCase();
+      if (primeiraColuna === "sdr") indiceCabecalhoSDR = i;
+      const linhaCompleta = linhas[i].join(" ").toLowerCase();
+      if (linhaCompleta.includes("resumo geral")) { indiceResumo = i; break; }
+    }
+
+    if (indiceCabecalhoSDR === -1) throw new Error("Não encontrei a linha do cabeçalho dos SDRs.");
+    if (indiceResumo === -1)       indiceResumo = linhas.length;
+
+    // Detectar índices de coluna pelo nome do cabeçalho (robusto a colunas fora de ordem)
+    const cabecalho = linhas[indiceCabecalhoSDR] || [];
+    const col = {};
+    cabecalho.forEach((cell, i) => {
+      const h = String(cell || "").trim().toLowerCase();
+      if (h === "sdr")                               col.nome          = i;
+      else if (h === "ativo")                        col.ativo         = i;
+      else if (h === "canal")                        col.canal         = i;
+      else if (h.includes("agendada"))               col.agendadas     = i;
+      else if (h.includes("realizada"))              col.realizadas    = i;
+      else if (h.includes("vend"))                   col.vendas        = i;
+      else if (h.includes("comparec") || h.includes("taxa")) col.comparecimento = i;
+      else if (h === "meta")                         col.meta          = i;
+      else if (h.includes("ating"))                  col.atingimento   = i;
+      else if (h === "status")                       col.status        = i;
+    });
+
+    const sdrs = [];
+    for (let i = indiceCabecalhoSDR + 1; i < indiceResumo; i++) {
+      const linha = linhas[i];
+      const nome = String(linha[col.nome ?? 0] || "").trim();
+      if (!nome || nome.toLowerCase() === "outros") continue;
+
+      const ativo = String(linha[col.ativo ?? 1] || "").trim().toLowerCase();
+      if (ativo === "não" || ativo === "nao") continue;
+
+      sdrs.push({
+        name:           nome,
+        canal:          String(linha[col.canal ?? 2] || "").trim(),
+        agendadas:      parseNumero(linha[col.agendadas     ?? 3] ?? 0),
+        realizadas:     parseNumero(linha[col.realizadas    ?? 4] ?? 0),
+        vendas:         col.vendas        !== undefined ? parseNumero(linha[col.vendas]        ?? 0) : 0,
+        comparecimento: col.comparecimento !== undefined ? parseNumero(linha[col.comparecimento] ?? 0) : 0,
+        meta:           parseNumero(linha[col.meta          ?? (col.vendas !== undefined ? 7 : 6)] ?? 0),
+        atingimento:    parseNumero(linha[col.atingimento   ?? (col.vendas !== undefined ? 8 : 7)] ?? 0),
+        status:         String(linha[col.status             ?? (col.vendas !== undefined ? 9 : 8)] || "").trim()
+      });
+    }
+
+    let totalAgendadasResumo  = 0;
+    let totalRealizadasResumo = 0;
+    let totalMetasResumo      = 0;
+
+    for (let i = indiceResumo + 1; i < linhas.length; i++) {
+      const label = String(linhas[i][0] || "").trim().toLowerCase();
+      const valor = parseNumero(linhas[i][3] || 0);
+      if (label.includes("total reuniões agendadas"))   totalAgendadasResumo  = valor;
+      else if (label.includes("total reuniões realizadas")) totalRealizadasResumo = valor;
+      else if (label.includes("total de metas"))            totalMetasResumo      = valor;
+    }
+
+    const totalAgendadas  = totalAgendadasResumo  || sdrs.reduce((acc, s) => acc + s.agendadas,  0);
+    const totalRealizadas = totalRealizadasResumo || sdrs.reduce((acc, s) => acc + s.realizadas, 0);
+    const totalVendas     = sdrs.reduce((acc, s) => acc + s.vendas, 0);
+    const totalMeta       = totalMetasResumo || 0;
+
+    const comparecimentoGeral = totalAgendadas > 0 ? (totalRealizadas / totalAgendadas) * 100 : 0;
+    const noShowGeral         = totalAgendadas > 0 ? ((totalAgendadas - totalRealizadas) / totalAgendadas) * 100 : 0;
+    const gapMetaTopo         = Math.max(totalMeta - totalRealizadas, 0);
+
+    return { totalMeta, totalAgendadas, totalRealizadas, totalVendas, comparecimentoGeral, noShowGeral, gapMetaTopo, sdrs };
+  }
+
+  /* ════════════════════════════════════════════
+     KPIs
+  ════════════════════════════════════════════ */
+  function atualizarKPIs(dados, mesSelecionado) {
+    const atingimentoGeral = dados.totalMeta > 0 ? (dados.totalRealizadas / dados.totalMeta) * 100 : 0;
+    document.getElementById("kpiMetaPeriodo").textContent    = formatarNumero(dados.totalMeta);
+    document.getElementById("kpiRealizado").textContent      = formatarNumero(dados.totalRealizadas);
+    document.getElementById("kpiRealizadoSub").textContent   = formatarPercentual(atingimentoGeral) + " da meta";
+    document.getElementById("kpiGapMeta").textContent        = formatarNumero(dados.gapMetaTopo);
+    document.getElementById("kpiNoShowGeral").textContent    = formatarPercentual(dados.noShowGeral);
+    document.getElementById("kpiNoShowSub").textContent      = "de " + formatarNumero(dados.totalAgendadas) + " agendadas";
+    document.getElementById("kpiTotalAgendadas").textContent = formatarNumero(dados.totalAgendadas);
+    document.getElementById("kpiComparecimento").textContent = formatarPercentual(dados.comparecimentoGeral);
+    document.getElementById("kpiTotalVendas").textContent    = formatarNumero(dados.totalVendas);
+    document.getElementById("periodBadge").textContent       = mesSelecionado;
+  }
+
+  /* ════════════════════════════════════════════
+     GRÁFICOS ESQUERDA
+  ════════════════════════════════════════════ */
+  function renderizarGraficoMeta(sdrs) {
+    if (chartAting) chartAting.destroy();
+    chartAting = new Chart(document.getElementById("cAting"), {
+      type: "bar",
+      data: {
+        labels: sdrs.map(s => formatNome(s.name)),
+        datasets: [
+          {
+            label: "Realizadas",
+            data: sdrs.map(s => s.realizadas),
+            backgroundColor: sdrs.map(s => barColor(s.meta > 0 ? (s.realizadas / s.meta) * 100 : 50)),
+            borderRadius: 4, barPercentage: 0.55
+          },
+          {
+            label: "Meta",
+            data: sdrs.map(s => s.meta > 0 ? s.meta : null),
+            type: "line", pointRadius: 0,
+            borderColor: "rgba(255,255,255,0.2)",
+            borderWidth: 1.5, borderDash: [5, 4], backgroundColor: "transparent",
+            spanGaps: false
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ctx.dataset.label + ": " + ctx.raw } }
+        },
+        scales: {
+          x: { ticks: { color: "#7a90b0", font: { size: 10 } }, grid: { display: false }, border: { display: false } },
+          y: { beginAtZero: true, ticks: { color: "#7a90b0", font: { size: 10, family: "DM Mono" } },
+               grid: { color: "rgba(255,255,255,0.04)" }, border: { display: false } }
+        }
+      }
+    });
+  }
+
+  function renderizarGraficoVendas(sdrs) {
+    if (chartVendas) chartVendas.destroy();
+    chartVendas = new Chart(document.getElementById("cVendas"), {
+      type: "bar",
+      data: {
+        labels: sdrs.map(s => formatNome(s.name)),
+        datasets: [{ label: "Vendas", data: sdrs.map(s => s.vendas),
+          backgroundColor: sdrs.map(s => s.vendas > 0 ? "rgba(16,185,129,0.8)" : "rgba(16,185,129,0.12)"),
+          borderRadius: 6, barPercentage: 0.5 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => "Vendas: " + ctx.raw } }
+        },
+        scales: {
+          x: { ticks: { color: "#7a90b0", font: { size: 10 } }, grid: { display: false }, border: { display: false } },
+          y: { beginAtZero: true, ticks: { color: "#7a90b0", font: { size: 10, family: "DM Mono" }, stepSize: 1, precision: 0 },
+               grid: { color: "rgba(255,255,255,0.04)" }, border: { display: false } }
+        }
+      }
+    });
+  }
+
+  /* ════════════════════════════════════════════
+     SPOTLIGHT
+  ════════════════════════════════════════════ */
+  /* idx=0 → Geral (grid de todos); idx=1..N → SDR individual */
+  function renderSpotlight(idx) {
+    document.querySelectorAll(".sdr-btn").forEach((btn, i) => {
+      btn.classList.toggle("active", i === idx);
+    });
+    const content = document.getElementById("spotlightContent");
+    if (idx === 0) {
+      renderGrade(content);
+    } else {
+      const sdr = allSDRs[idx - 1];
+      if (sdr) renderIndividual(content, sdr);
+    }
+  }
+
+  function renderGrade(container) {
+    container.innerHTML = `<div class="sdr-grid" id="sdrGrid"></div>`;
+    const grid = document.getElementById("sdrGrid");
+    allSDRs.forEach(s => {
+      const noShow  = s.agendadas > 0 ? (100 - (s.realizadas / s.agendadas) * 100) : 0;
+      const ating   = s.meta > 0 ? (s.realizadas / s.meta) * 100 : 0;
+      const barWidth = Math.min(ating, 100);
+      const div = document.createElement("div");
+      div.className = "sdr-card";
+      div.innerHTML = `
+        <div class="sdr-card-top">
+          <span class="sdr-name">${s.name}</span>
+          <span class="canal-tag ${canalClass(s.canal)}">${s.canal || "—"}</span>
+        </div>
+        <div class="sdr-stats">
+          <div class="stat"><div class="stat-num">${formatarNumero(s.agendadas)}</div><div class="stat-lbl">Agend.</div></div>
+          <div class="stat"><div class="stat-num">${formatarNumero(s.realizadas)}</div><div class="stat-lbl">Realiz.</div></div>
+          <div class="stat"><div class="stat-num vendas-val">${formatarNumero(s.vendas)}</div><div class="stat-lbl">Vendas</div></div>
+          <div class="stat"><div class="stat-num ${nsTextClass(noShow)}">${formatarPercentual(noShow)}</div><div class="stat-lbl">No-show</div></div>
+        </div>
+        ${s.meta > 0 ? `
+          <div class="progress-top">
+            <span class="progress-label">Meta ${formatarNumero(s.meta)}</span>
+            <span class="progress-badge ${badgeClass(ating)}">${Math.round(ating)}%</span>
+          </div>
+          <div class="prog-track"><div class="prog-fill" style="width:${barWidth}%;background:${barColor(ating)}"></div></div>
+        ` : `<p class="no-meta">Sem meta definida</p>`}
+      `;
+      grid.appendChild(div);
+    });
+  }
+
+  function renderIndividual(container, s) {
+    const noShow    = s.agendadas > 0 ? (100 - (s.realizadas / s.agendadas) * 100) : 0;
+    const ating     = s.meta > 0 ? (s.realizadas / s.meta) * 100 : 0;
+    const barW      = Math.min(ating, 100);
+    const progColor = barColor(ating);
+    const avg = key => allSDRs.length > 0 ? allSDRs.reduce((a, x) => a + x[key], 0) / allSDRs.length : 0;
+
+    container.innerHTML = `
+      <div class="spotlight-single">
+
+        <!-- Header compacto: nome + canal na mesma linha -->
+        <div class="spot-header">
+          <div class="spot-name-wrap">
+            <span class="spot-name">${s.name}</span>
+            <span class="spot-comercial">${s.comercial || ""}</span>
+          </div>
+          <span class="canal-tag ${canalClass(s.canal)}">${s.canal || "—"}</span>
+        </div>
+
+        <!-- 4 stats compactos -->
+        <div class="spot-stats">
+          <div class="spot-stat" style="--stat-color:#5b7fff">
+            <div class="spot-stat-num" style="color:var(--blue-bright)">${formatarNumero(s.agendadas)}</div>
+            <div class="spot-stat-lbl">Agendadas</div>
+          </div>
+          <div class="spot-stat" style="--stat-color:#10b981">
+            <div class="spot-stat-num" style="color:var(--green)">${formatarNumero(s.realizadas)}</div>
+            <div class="spot-stat-lbl">Realizadas</div>
+          </div>
+          <div class="spot-stat" style="--stat-color:#10b981">
+            <div class="spot-stat-num" style="color:var(--green)">${formatarNumero(s.vendas)}</div>
+            <div class="spot-stat-lbl">Vendas</div>
+          </div>
+          <div class="spot-stat" style="--stat-color:${noShow >= 70 ? '#f43f5e' : noShow >= 55 ? '#f59e0b' : '#10b981'}">
+            <div class="spot-stat-num" style="color:${noShow >= 70 ? 'var(--red)' : noShow >= 55 ? 'var(--amber)' : 'var(--green)'}">${formatarPercentual(noShow)}</div>
+            <div class="spot-stat-lbl">No-show</div>
+          </div>
+        </div>
+
+        <!-- Atingimento compacto (apenas se tiver meta) -->
+        ${s.meta > 0 ? `
+        <div class="spot-progress-box">
+          <div class="spot-prog-top">
+            <span class="spot-prog-label">Atingimento · meta ${formatarNumero(s.meta)} reuniões</span>
+            <span class="spot-prog-pct" style="color:${progColor}">${Math.round(ating)}%</span>
+          </div>
+          <div class="spot-prog-track"><div class="spot-prog-fill" style="width:${barW}%;background:${progColor}"></div></div>
+        </div>
+        ` : ""}
+
+        <!-- Gráfico ocupa todo o espaço restante -->
+        <div class="spot-chart-box">
+          <div class="spot-chart-title">Este SDR vs média do time</div>
+          <div class="spot-canvas-wrap"><canvas id="cSpot"></canvas></div>
+        </div>
+
+      </div>
+    `;
+
+    if (chartSpot) { chartSpot.destroy(); chartSpot = null; }
+    const labels  = ["Agendadas", "Realizadas", "Vendas"];
+    const sdrData = [s.agendadas, s.realizadas, s.vendas];
+    const avgData = [avg("agendadas"), avg("realizadas"), avg("vendas")];
+
+    requestAnimationFrame(() => {
+      const canvas = document.getElementById("cSpot");
+      if (!canvas) return;
+      chartSpot = new Chart(canvas, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            { label: formatNome(s.name), data: sdrData,
+              backgroundColor: ["rgba(91,127,255,0.8)","rgba(16,185,129,0.8)","rgba(16,185,129,0.8)"],
+              borderRadius: 6, barPercentage: 0.4 },
+            { label: "Média do time", data: avgData, type: "line",
+              pointRadius: 5, pointBackgroundColor: "#f59e0b",
+              pointBorderColor: "#0b1829", pointBorderWidth: 2,
+              borderColor: "#f59e0b", borderWidth: 2,
+              backgroundColor: "transparent", tension: 0, borderDash: [5, 4] }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true,
+              labels: { color: "#7a90b0", font: { size: 10, family: "DM Sans" }, boxWidth: 10, padding: 14 }
+            },
+            tooltip: { callbacks: { label: ctx => ctx.dataset.label + ": " + ctx.raw.toFixed(1) } }
+          },
+          scales: {
+            x: { ticks: { color: "#7a90b0", font: { size: 11 } }, grid: { display: false }, border: { display: false } },
+            y: { beginAtZero: true, ticks: { color: "#7a90b0", font: { size: 10, family: "DM Mono" }, precision: 0 },
+                 grid: { color: "rgba(255,255,255,0.04)" }, border: { display: false } }
+          }
+        }
+      });
+    });
+  }
+
+  /* ════════════════════════════════════════════
+     ROTAÇÃO AUTOMÁTICA
+  ════════════════════════════════════════════ */
+  function criarBotoes() {
+    const wrap = document.getElementById("sdrButtons");
+    wrap.innerHTML = "";
+    // Botão Geral (idx 0)
+    const btnGeral = document.createElement("button");
+    btnGeral.className = "sdr-btn active";
+    btnGeral.textContent = "Geral";
+    btnGeral.addEventListener("click", () => selecionarManual(0));
+    wrap.appendChild(btnGeral);
+    // Um botão por SDR (idx 1..N)
+    allSDRs.forEach((s, i) => {
+      const btn = document.createElement("button");
+      btn.className = "sdr-btn";
+      btn.textContent = formatNome(s.name);
+      btn.addEventListener("click", () => selecionarManual(i + 1));
+      wrap.appendChild(btn);
+    });
+  }
+
+  function selecionarManual(idx) {
+    manualLock  = true;
+    rotationIdx = idx;
+    secondsLeft = ROTATION_SEC;
+    atualizarCountdown();
+    renderSpotlight(rotationIdx);
+    clearTimeout(window._unlockTimer);
+    window._unlockTimer = setTimeout(() => { manualLock = false; }, 30000);
+  }
+
+  function avancarRotacao() {
+    if (manualLock) return;
+    rotationIdx = (rotationIdx + 1) % (allSDRs.length + 1); // 0=Geral, 1..N=SDRs
+    renderSpotlight(rotationIdx);
+  }
+
+  function atualizarCountdown() {
+    const fill  = document.getElementById("countdownFill");
+    const label = document.getElementById("countdownLabel");
+    if (!fill || !label) return;
+    fill.style.width      = (secondsLeft / ROTATION_SEC * 100) + "%";
+    fill.style.background = secondsLeft <= 3 ? "#f59e0b" : "var(--blue-bright)";
+    label.textContent     = secondsLeft + "s";
+  }
+
+  function iniciarRotacao() {
+    clearInterval(rotationTimer);
+    rotationTimer = setInterval(() => {
+      if (!manualLock) { secondsLeft = ROTATION_SEC; avancarRotacao(); }
+    }, ROTATION_SEC * 1000);
+    clearInterval(countdownTimer);
+    countdownTimer = setInterval(() => {
+      if (!manualLock) {
+        secondsLeft = Math.max(0, secondsLeft - 1);
+        atualizarCountdown();
+        if (secondsLeft === 0) secondsLeft = ROTATION_SEC;
+      } else {
+        secondsLeft = ROTATION_SEC;
+        atualizarCountdown();
+      }
+    }, 1000);
+  }
+
+  /* ════════════════════════════════════════════
+     MAIN
+  ════════════════════════════════════════════ */
+  async function carregarDashboard() {
+    const mesSelecionado = document.getElementById("mesSelect").value;
+    try {
+      mostrarStatus("Carregando dados de " + mesSelecionado + "...");
+      const linhas = await buscarDadosDaAba(mesSelecionado);
+      const dados  = extrairDadosPlanilha(linhas);
+
+      allSDRs = dados.sdrs;
+
+      atualizarKPIs(dados, mesSelecionado);
+      criarBotoes();
+      renderizarGraficoMeta(dados.sdrs);
+      renderizarGraficoVendas(dados.sdrs);
+      renderSpotlight(rotationIdx);
+      iniciarRotacao();
+      esconderStatus();
+    } catch (erro) {
+      console.error(erro);
+      mostrarStatus("Não consegui carregar os dados de " + mesSelecionado + ". Verifique se a aba existe e se a planilha está pública.", "error");
+    }
+  }
+
+  document.getElementById("mesSelect").addEventListener("change", () => {
+    rotationIdx = 0;
+    carregarDashboard();
+  });
+
+  document.getElementById("mesSelect").value = getMesAtualNome();
+  carregarDashboard();
+
+  // Recarrega dados a cada 60s sem resetar o spotlight
+  setInterval(carregarDashboard, 60000);
+
+  /* ════════════════════════════════════════════
+     WAKE LOCK — impede o Firestick de dormir
+     Usa a Wake Lock API (suportada no Silk/Chrome).
+     Se não suportada, usa fallback com vídeo silencioso.
+  ════════════════════════════════════════════ */
+  let wakeLock = null;
+  async function ativarWakeLock() {
+    if ("wakeLock" in navigator) {
+      try {
+        wakeLock = await navigator.wakeLock.request("screen");
+        // Reativa se a página volta ao foco (ex: alt-tab)
+        document.addEventListener("visibilitychange", async () => {
+          if (document.visibilityState === "visible" && wakeLock === null) {
+            try { wakeLock = await navigator.wakeLock.request("screen"); } catch(e) {}
+          }
+        });
+      } catch(e) {
+        fallbackWakeLock();
+      }
+    } else {
+      fallbackWakeLock();
+    }
+  }
+
+  function fallbackWakeLock() {
+    // Fallback: vídeo de 1x1 pixel silencioso em loop
+    // Mantém o navegador "ativo" mesmo sem Wake Lock API
+    const video = document.createElement("video");
+    video.setAttribute("loop", "");
+    video.setAttribute("muted", "");
+    video.setAttribute("playsinline", "");
+    video.style.cssText = "position:fixed;top:-1px;left:-1px;width:1px;height:1px;opacity:0;pointer-events:none;";
+    // Data URI de um vídeo MP4 mínimo (1 frame, 1x1 px, ~68 bytes)
+    video.src = "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAA2htZGF0AAACrQYF//+p3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE0MiByMjQ3OSBkZDc5YTYxIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNCAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzoweDExMyBtZT1oZXggc3VibWU9NyBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0xIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0xIHRyZWxsaXM9MSA4eDhkY3Q9MSBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0tMiB0aHJlYWRzPTMgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz0zIGJfcHlyYW1pZD0yIGJfYWRhcHQ9MSBiX2JpYXM9MCBkaXJlY3Q9MSB3ZWlnaHRiPTEgb3Blbl9nb3A9MCB3ZWlnaHRwPTIga2V5aW50PTI1MCBrZXlpbnRfbWluPTI1IHNjZW5lY3V0PTQwIGludHJhX3JlZnJlc2g9MCByY19sb29rYWhlYWQ9NDAgcmM9Y3JmIG1idHJlZT0xIGNyZj0yMy4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCBpcF9yYXRpbz0xLjQwIGFxPTE6MS4wMACAAAABZWWIhAAz//727L4FNf2f0JcRLMXaSnA+KqSAgHc0wAAAAwAAAwAAFgn0I7DkqgN3QAAABkGaJGxBT/DqAAArMAAEVW0ABhqSAAADAADQOBCpvzGQERG8QAAAAMABAAADAB+gAAAABkGaRHhDqU/DAAADAAIqsAAAAwAAGqiAAAAGQZpkeDOUwwAAAwAAiqgAAAMAABqoAAAABkGahHhDqU/DAAADAAAAAiuoAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZrEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZsEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKoo";
+    document.body.appendChild(video);
+    video.play().catch(() => {});
+  }
+
+  ativarWakeLock();
+</script>
+</body>
+</html>
