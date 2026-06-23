@@ -489,6 +489,11 @@
     const statusIdx = cabecalho.indexOf("Status");
     const temVendas = statusIdx === 9;
 
+    // DEBUG
+    for (let i = indiceCabecalhoSDR + 1; i < Math.min(indiceCabecalhoSDR + 6, indiceResumo); i++) {
+      console.log("SDR linha", i, JSON.stringify(linhas[i]));
+    }
+
     const sdrs = [];
     for (let i = indiceCabecalhoSDR + 1; i < indiceResumo; i++) {
       const linha = linhas[i];
