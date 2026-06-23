@@ -35,14 +35,12 @@
       background: var(--bg); color: var(--text);
     }
 
-    /* ── PAGE ── */
     .page {
       height: 100vh;
       display: flex; flex-direction: column;
       padding: 7px 16px 8px; gap: 6px;
     }
 
-    /* ── HEADER ── */
     .page-header {
       display: flex; align-items: center; gap: 12px;
       flex-shrink: 0; padding-bottom: 7px;
@@ -61,7 +59,6 @@
       text-transform:uppercase; color:var(--muted);
     }
     .page-subtitle { font-size:15px; font-weight:700; letter-spacing:-0.02em; line-height:1.1; }
-    /* SDR nav no header — sem quebra de linha */
     .header-sdr-nav { flex:1; display:flex; flex-direction:column; justify-content:center; gap:4px; min-width:0; overflow:hidden; max-width:calc(100% - 220px); }
     .header-controls { display:flex; align-items:center; gap:8px; flex-shrink:0; min-width:200px; }
     .control-label {
@@ -80,14 +77,12 @@
       border:1px solid rgba(91,127,255,0.25);
     }
 
-    /* ── STATUS ── */
     .status-message {
       display:none; padding:5px 10px; border-radius:7px; font-size:11px; flex-shrink:0;
     }
     .status-loading { display:block; background:var(--blue-bg); color:var(--blue-bright); }
     .status-error   { display:block; background:var(--red-bg);  color:var(--red); }
 
-    /* ── KPI ROW ── */
     .kpi-section {
       display:grid; grid-template-columns:repeat(7,minmax(0,1fr));
       gap:6px; flex-shrink:0;
@@ -114,14 +109,12 @@
     .kpi-val.red   { color:var(--red); }
     .kpi-val.amber { color:var(--amber); }
 
-    /* ── MAIN BODY (2 cols) ── */
     .main-body {
       flex:1; min-height:0;
       display:grid; grid-template-columns:380px 1fr;
       gap:6px;
     }
 
-    /* ── LEFT COL ── */
     .charts-col {
       display:flex; flex-direction:column; gap:8px; min-height:0;
     }
@@ -141,12 +134,10 @@
     .legend-dot  { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
     .chart-canvas-wrap { flex:1; min-height:0; position:relative; }
 
-    /* ── RIGHT COL: spotlight ── */
     .spotlight-panel {
       display:flex; flex-direction:column; gap:8px; min-height:0;
     }
 
-    /* Botões em linha única, sem quebrar */
     .sdr-buttons { display:flex; gap:4px; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; }
     .sdr-buttons::-webkit-scrollbar { display:none; }
     .sdr-btn {
@@ -161,16 +152,13 @@
       box-shadow:0 0 12px rgba(65,105,225,0.35);
     }
 
-    /* Countdown */
     .countdown-wrap { display:flex; align-items:center; gap:8px; }
     .countdown-track { flex:1; height:3px; background:var(--surface2); border-radius:99px; overflow:hidden; }
     .countdown-fill  { height:100%; border-radius:99px; background:var(--blue-bright); transition:width .9s linear,background .2s; }
     .countdown-label { font-family:var(--mono); font-size:10px; color:var(--muted); width:24px; text-align:right; }
 
-    /* Spotlight content */
     .spotlight-content { flex:1; min-height:0; overflow:hidden; }
 
-    /* Grade geral */
     .sdr-grid {
       display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
       gap:6px; height:100%;
@@ -212,11 +200,9 @@
     .prog-fill  { height:100%; border-radius:99px; }
     .no-meta    { font-size:10px; color:var(--muted); font-style:italic; }
 
-    /* ── Spotlight individual ── */
     .spotlight-single {
       height:100%; display:flex; flex-direction:column; gap:6px; overflow:hidden;
     }
-    /* Header: nome + canal lado a lado, compacto */
     .spot-header {
       display:flex; justify-content:space-between; align-items:center; gap:8px;
       flex-shrink:0;
@@ -224,7 +210,6 @@
     .spot-name-wrap { display:flex; align-items:baseline; gap:10px; }
     .spot-name      { font-size:20px; font-weight:700; letter-spacing:-0.02em; }
     .spot-comercial { font-size:10px; color:var(--muted); }
-    /* 4 stats em linha horizontal compacta */
     .spot-stats {
       display:grid; grid-template-columns:repeat(4,1fr);
       gap:5px; flex-shrink:0;
@@ -240,7 +225,6 @@
     }
     .spot-stat-num { font-size:22px; font-weight:700; font-family:var(--mono); line-height:1.1; }
     .spot-stat-lbl { font-size:9px; text-transform:uppercase; letter-spacing:0.07em; color:var(--muted); margin-top:1px; }
-    /* Barra de atingimento compacta */
     .spot-progress-box {
       background:var(--surface); border-radius:8px; padding:8px 12px;
       border:1px solid var(--border); flex-shrink:0;
@@ -250,7 +234,6 @@
     .spot-prog-pct  { font-size:14px; font-weight:700; font-family:var(--mono); }
     .spot-prog-track{ background:var(--surface2); border-radius:99px; height:6px; overflow:hidden; }
     .spot-prog-fill { height:100%; border-radius:99px; }
-    /* Gráfico ocupa todo o espaço restante */
     .spot-chart-box {
       background:var(--surface); border-radius:8px; padding:8px 12px;
       border:1px solid var(--border); flex:1; min-height:0;
@@ -263,7 +246,6 @@
 <body>
 <div class="page">
 
-  <!-- HEADER -->
   <div class="page-header">
     <div class="page-logo">
       <img src="logo.png" alt="Mundo Invest">
@@ -274,7 +256,6 @@
       <h1 class="page-subtitle">Resultados do time</h1>
     </div>
 
-    <!-- Filtro SDR + countdown no header -->
     <div class="header-sdr-nav">
       <div class="sdr-buttons" id="sdrButtons"></div>
       <div class="countdown-wrap">
@@ -307,10 +288,8 @@
     </div>
   </div>
 
-  <!-- STATUS -->
   <div id="statusMessage" class="status-message"></div>
 
-  <!-- KPIs -->
   <div class="kpi-section">
     <div class="kpi" style="--kpi-color:var(--blue)">
       <p class="kpi-label">Meta do período</p>
@@ -345,10 +324,8 @@
     </div>
   </div>
 
-  <!-- MAIN BODY -->
   <div class="main-body">
 
-    <!-- Coluna esquerda: gráficos -->
     <div class="charts-col">
       <div class="chart-box">
         <div class="chart-box-title">Realizadas vs meta por SDR</div>
@@ -370,7 +347,6 @@
       </div>
     </div>
 
-    <!-- Coluna direita: spotlight -->
     <div class="spotlight-panel">
       <div class="spotlight-content" id="spotlightContent"></div>
     </div>
@@ -379,9 +355,6 @@
 </div>
 
 <script>
-  /* ════════════════════════════════════════════
-     CONFIGURAÇÃO
-  ════════════════════════════════════════════ */
   const PLANILHA_ID  = "1M-riwAUpISRY6CHWY4qi3ijOCHeLOMKCnkNXeUc-Jbs";
   const ROTATION_SEC = 15;
 
@@ -395,9 +368,6 @@
   let secondsLeft = ROTATION_SEC;
   let manualLock  = false;
 
-  /* ════════════════════════════════════════════
-     HELPERS  (idênticos ao original que funciona)
-  ════════════════════════════════════════════ */
   function mostrarStatus(texto, tipo) {
     const box = document.getElementById("statusMessage");
     box.textContent = texto;
@@ -435,7 +405,6 @@
   function formatNome(nome) {
     const parts = nome.trim().split(/\s+/);
     if (parts.length === 1) return parts[0];
-    // Abreviar último sobrenome: "Tiago Martinez" → "Tiago M."
     return parts[0] + ' ' + parts[parts.length - 1][0].toUpperCase() + '.';
   }
   function nsTextClass(p) { return p >= 70 ? "noshow-hi" : p >= 55 ? "noshow-mid" : "noshow-ok"; }
@@ -446,9 +415,6 @@
     return meses[new Date().getMonth()];
   }
 
-  /* ════════════════════════════════════════════
-     FETCH (idêntico ao original que funciona)
-  ════════════════════════════════════════════ */
   async function buscarDadosDaAba(nomeAba) {
     const url = `https://docs.google.com/spreadsheets/d/${PLANILHA_ID}/gviz/tq?sheet=${encodeURIComponent(nomeAba)}&tqx=out:json&t=${Date.now()}`;
     const resposta = await fetch(url);
@@ -461,11 +427,6 @@
     );
   }
 
-  /* ════════════════════════════════════════════
-     EXTRAIR DADOS
-     Baseado no original — coluna Vendas adicionada
-     em F (índice 5), deslocando as demais
-  ════════════════════════════════════════════ */
   function extrairDadosPlanilha(linhas) {
     let indiceCabecalhoSDR = -1;
     let indiceResumo       = -1;
@@ -480,11 +441,7 @@
     if (indiceCabecalhoSDR === -1) throw new Error("Não encontrei a linha do cabeçalho dos SDRs.");
     if (indiceResumo === -1)       indiceResumo = linhas.length;
 
-    /* Detectar se a planilha tem coluna Vendas (F):
-       verifica o cabeçalho — se a coluna 5 contém "venda", usa estrutura nova;
-       caso contrário, usa estrutura antiga (sem Vendas) */
-    const cabecalho = linhas[indiceCabecalhoSDR] || [];
-    const temVendas = cabecalho.some(c => String(c || "").toLowerCase().includes("vend"));
+    const temVendas = true;
 
     const sdrs = [];
     for (let i = indiceCabecalhoSDR + 1; i < indiceResumo; i++) {
@@ -492,37 +449,20 @@
       const nome = String(linha[0] || "").trim();
       if (!nome || nome.toLowerCase() === "outros") continue;
 
-      // Coluna B = "Ativo" (Sim/Não) — pula SDRs inativos
       const ativo = String(linha[1] || "").trim().toLowerCase();
       if (ativo === "não" || ativo === "nao") continue;
 
-      if (temVendas) {
-        // A=SDR B=Ativo C=Canal D=Agendadas E=Realizadas F=Vendas G=Comparecimento H=Meta I=Atingimento J=Status
-        sdrs.push({
-          name:        nome,
-          canal:       String(linha[2] || "").trim(),
-          agendadas:   parseNumero(linha[3] || 0),
-          realizadas:  parseNumero(linha[4] || 0),
-          vendas:      parseNumero(linha[5] || 0),
-          comparecimento: parseNumero(linha[6] || 0),
-          meta:        parseNumero(linha[7] || 0),
-          atingimento: parseNumero(linha[8] || 0),
-          status:      String(linha[9] || "").trim()
-        });
-      } else {
-        // Estrutura sem coluna Vendas
-        sdrs.push({
-          name:        nome,
-          canal:       String(linha[2] || "").trim(),
-          agendadas:   parseNumero(linha[3] || 0),
-          realizadas:  parseNumero(linha[4] || 0),
-          vendas:      0,
-          comparecimento: parseNumero(linha[5] || 0),
-          meta:        parseNumero(linha[6] || 0),
-          atingimento: parseNumero(linha[7] || 0),
-          status:      String(linha[8] || "").trim()
-        });
-      }
+      sdrs.push({
+        name:           nome,
+        canal:          String(linha[2] || "").trim(),
+        agendadas:      parseNumero(linha[3] || 0),
+        realizadas:     parseNumero(linha[4] || 0),
+        vendas:         parseNumero(linha[5] || 0),
+        comparecimento: parseNumero(linha[6] || 0),
+        meta:           parseNumero(linha[7] || 0),
+        atingimento:    parseNumero(linha[8] || 0),
+        status:         String(linha[9] || "").trim()
+      });
     }
 
     let totalAgendadasResumo  = 0;
@@ -532,7 +472,7 @@
     for (let i = indiceResumo + 1; i < linhas.length; i++) {
       const label = String(linhas[i][0] || "").trim().toLowerCase();
       const valor = parseNumero(linhas[i][3] || 0);
-      if (label.includes("total reuniões agendadas"))   totalAgendadasResumo  = valor;
+      if (label.includes("total reuniões agendadas"))       totalAgendadasResumo  = valor;
       else if (label.includes("total reuniões realizadas")) totalRealizadasResumo = valor;
       else if (label.includes("total de metas"))            totalMetasResumo      = valor;
     }
@@ -549,9 +489,6 @@
     return { totalMeta, totalAgendadas, totalRealizadas, totalVendas, comparecimentoGeral, noShowGeral, gapMetaTopo, sdrs };
   }
 
-  /* ════════════════════════════════════════════
-     KPIs
-  ════════════════════════════════════════════ */
   function atualizarKPIs(dados, mesSelecionado) {
     const atingimentoGeral = dados.totalMeta > 0 ? (dados.totalRealizadas / dados.totalMeta) * 100 : 0;
     document.getElementById("kpiMetaPeriodo").textContent    = formatarNumero(dados.totalMeta);
@@ -566,9 +503,6 @@
     document.getElementById("periodBadge").textContent       = mesSelecionado;
   }
 
-  /* ════════════════════════════════════════════
-     GRÁFICOS ESQUERDA
-  ════════════════════════════════════════════ */
   function renderizarGraficoMeta(sdrs) {
     if (chartAting) chartAting.destroy();
     chartAting = new Chart(document.getElementById("cAting"), {
@@ -632,10 +566,6 @@
     });
   }
 
-  /* ════════════════════════════════════════════
-     SPOTLIGHT
-  ════════════════════════════════════════════ */
-  /* idx=0 → Geral (grid de todos); idx=1..N → SDR individual */
   function renderSpotlight(idx) {
     document.querySelectorAll(".sdr-btn").forEach((btn, i) => {
       btn.classList.toggle("active", i === idx);
@@ -690,8 +620,6 @@
 
     container.innerHTML = `
       <div class="spotlight-single">
-
-        <!-- Header compacto: nome + canal na mesma linha -->
         <div class="spot-header">
           <div class="spot-name-wrap">
             <span class="spot-name">${s.name}</span>
@@ -699,8 +627,6 @@
           </div>
           <span class="canal-tag ${canalClass(s.canal)}">${s.canal || "—"}</span>
         </div>
-
-        <!-- 4 stats compactos -->
         <div class="spot-stats">
           <div class="spot-stat" style="--stat-color:#5b7fff">
             <div class="spot-stat-num" style="color:var(--blue-bright)">${formatarNumero(s.agendadas)}</div>
@@ -719,8 +645,6 @@
             <div class="spot-stat-lbl">No-show</div>
           </div>
         </div>
-
-        <!-- Atingimento compacto (apenas se tiver meta) -->
         ${s.meta > 0 ? `
         <div class="spot-progress-box">
           <div class="spot-prog-top">
@@ -730,13 +654,10 @@
           <div class="spot-prog-track"><div class="spot-prog-fill" style="width:${barW}%;background:${progColor}"></div></div>
         </div>
         ` : ""}
-
-        <!-- Gráfico ocupa todo o espaço restante -->
         <div class="spot-chart-box">
           <div class="spot-chart-title">Este SDR vs média do time</div>
           <div class="spot-canvas-wrap"><canvas id="cSpot"></canvas></div>
         </div>
-
       </div>
     `;
 
@@ -781,19 +702,14 @@
     });
   }
 
-  /* ════════════════════════════════════════════
-     ROTAÇÃO AUTOMÁTICA
-  ════════════════════════════════════════════ */
   function criarBotoes() {
     const wrap = document.getElementById("sdrButtons");
     wrap.innerHTML = "";
-    // Botão Geral (idx 0)
     const btnGeral = document.createElement("button");
     btnGeral.className = "sdr-btn active";
     btnGeral.textContent = "Geral";
     btnGeral.addEventListener("click", () => selecionarManual(0));
     wrap.appendChild(btnGeral);
-    // Um botão por SDR (idx 1..N)
     allSDRs.forEach((s, i) => {
       const btn = document.createElement("button");
       btn.className = "sdr-btn";
@@ -815,7 +731,7 @@
 
   function avancarRotacao() {
     if (manualLock) return;
-    rotationIdx = (rotationIdx + 1) % (allSDRs.length + 1); // 0=Geral, 1..N=SDRs
+    rotationIdx = (rotationIdx + 1) % (allSDRs.length + 1);
     renderSpotlight(rotationIdx);
   }
 
@@ -829,26 +745,20 @@
   }
 
   function iniciarRotacao() {
-    clearInterval(rotationTimer);
-    rotationTimer = setInterval(() => {
+    if (window._rotationStarted) return;
+    window._rotationStarted = true;
+    setInterval(() => {
       if (!manualLock) { secondsLeft = ROTATION_SEC; avancarRotacao(); }
     }, ROTATION_SEC * 1000);
-    clearInterval(countdownTimer);
-    countdownTimer = setInterval(() => {
+    setInterval(() => {
       if (!manualLock) {
         secondsLeft = Math.max(0, secondsLeft - 1);
         atualizarCountdown();
         if (secondsLeft === 0) secondsLeft = ROTATION_SEC;
-      } else {
-        secondsLeft = ROTATION_SEC;
-        atualizarCountdown();
       }
     }, 1000);
   }
 
-  /* ════════════════════════════════════════════
-     MAIN
-  ════════════════════════════════════════════ */
   async function carregarDashboard() {
     const mesSelecionado = document.getElementById("mesSelect").value;
     try {
@@ -879,20 +789,13 @@
   document.getElementById("mesSelect").value = getMesAtualNome();
   carregarDashboard();
 
-  // Recarrega dados a cada 60s sem resetar o spotlight
   setInterval(carregarDashboard, 60000);
 
-  /* ════════════════════════════════════════════
-     WAKE LOCK — impede o Firestick de dormir
-     Usa a Wake Lock API (suportada no Silk/Chrome).
-     Se não suportada, usa fallback com vídeo silencioso.
-  ════════════════════════════════════════════ */
   let wakeLock = null;
   async function ativarWakeLock() {
     if ("wakeLock" in navigator) {
       try {
         wakeLock = await navigator.wakeLock.request("screen");
-        // Reativa se a página volta ao foco (ex: alt-tab)
         document.addEventListener("visibilitychange", async () => {
           if (document.visibilityState === "visible" && wakeLock === null) {
             try { wakeLock = await navigator.wakeLock.request("screen"); } catch(e) {}
@@ -907,15 +810,12 @@
   }
 
   function fallbackWakeLock() {
-    // Fallback: vídeo de 1x1 pixel silencioso em loop
-    // Mantém o navegador "ativo" mesmo sem Wake Lock API
     const video = document.createElement("video");
     video.setAttribute("loop", "");
     video.setAttribute("muted", "");
     video.setAttribute("playsinline", "");
     video.style.cssText = "position:fixed;top:-1px;left:-1px;width:1px;height:1px;opacity:0;pointer-events:none;";
-    // Data URI de um vídeo MP4 mínimo (1 frame, 1x1 px, ~68 bytes)
-    video.src = "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAA2htZGF0AAACrQYF//+p3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE0MiByMjQ3OSBkZDc5YTYxIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNCAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzoweDExMyBtZT1oZXggc3VibWU9NyBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0xIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0xIHRyZWxsaXM9MSA4eDhkY3Q9MSBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0tMiB0aHJlYWRzPTMgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz0zIGJfcHlyYW1pZD0yIGJfYWRhcHQ9MSBiX2JpYXM9MCBkaXJlY3Q9MSB3ZWlnaHRiPTEgb3Blbl9nb3A9MCB3ZWlnaHRwPTIga2V5aW50PTI1MCBrZXlpbnRfbWluPTI1IHNjZW5lY3V0PTQwIGludHJhX3JlZnJlc2g9MCByY19sb29rYWhlYWQ9NDAgcmM9Y3JmIG1idHJlZT0xIGNyZj0yMy4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCBpcF9yYXRpbz0xLjQwIGFxPTE6MS4wMACAAAABZWWIhAAz//727L4FNf2f0JcRLMXaSnA+KqSAgHc0wAAAAwAAAwAAFgn0I7DkqgN3QAAABkGaJGxBT/DqAAArMAAEVW0ABhqSAAADAADQOBCpvzGQERG8QAAAAMABAAADAB+gAAAABkGaRHhDqU/DAAADAAIqsAAAAwAAGqiAAAAGQZpkeDOUwwAAAwAAiqgAAAMAABqoAAAABkGahHhDqU/DAAADAAAAAiuoAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZrEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZsEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKoo";
+    video.src = "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAA2htZGF0AAACrQYF//+p3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE0MiByMjQ3OSBkZDc5YTYxIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNCAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzoweDExMyBtZT1oZXggc3VibWU9NyBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0xIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0xIHRyZWxsaXM9MSA4eDhkY3Q9MSBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0tMiB0aHJlYWRzPTMgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz0zIGJfcHlyYW1pZD0yIGJfYWRhcHQ9MSBiX2JpYXM9MCBkaXJlY3Q9MSB3ZWlnaHRiPTEgb3Blbl9nb3A9MCB3ZWlnaHRwPTIga2V5aW50PTI1MCBrZXlpbnRfbWluPTI1IHNjZW5lY3V0PTQwIGludHJhX3JlZnJlc2g9MCByY19sb29rYWhlYWQ9NDAgcmM9Y3JmIG1idHJlZT0xIGNyZj0yMy4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCBpcF9yYXRpbz0xLjQwIGFxPTE6MS4wMACAAAABZWWIhAAz//727L4FNf2f0JcRLMXaSnA+KqSAgHc0wAAAAwAAAwAAFgn0I7DkqgN3QAAABkGaJGxBT/DqAAArMAAEVW0ABhqSAAADAADQOBCpvzGQERG8QAAAAMABAAADAB+gAAAABkGaRHhDqU/DAAADAAIqsAAAAwAAGqiAAAAGQZpkeDOUwwAAAwAAiqgAAAMAABqoAAAABkGahHhDqU/DAAADAAAAAiuoAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZrEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZsEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKooAAAABkGapHhDqU/DAAADAAAAoioAAAAGQZvEeDOUwwAAAwAAAAKooAAAABkGa5HhDqU/DAAADAAAAoioAAAAGQZwEeDOUwwAAAwAAAAKooAAAABkGaJHhDqU/DAAADAAAAoioAAAAGQZtEeDOUwwAAAwAAAAKooAAAABkGaZHhDqU/DAAADAAAAoioAAAAGQZuEeDOUwwAAAwAAAAKoo";
     document.body.appendChild(video);
     video.play().catch(() => {});
   }
