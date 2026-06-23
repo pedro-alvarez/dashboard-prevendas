@@ -484,7 +484,7 @@
        verifica o cabeçalho — se a coluna 5 contém "venda", usa estrutura nova;
        caso contrário, usa estrutura antiga (sem Vendas) */
     const cabecalho = linhas[indiceCabecalhoSDR] || [];
-    const temVendas = String(cabecalho[5] || "").toLowerCase().includes("vend");
+    const temVendas = cabecalho.some(c => String(c || "").toLowerCase().includes("vend"));
 
     const sdrs = [];
     for (let i = indiceCabecalhoSDR + 1; i < indiceResumo; i++) {
