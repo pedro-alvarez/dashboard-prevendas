@@ -481,49 +481,50 @@
     if (indiceCabecalhoSDR === -1) throw new Error("Não encontrei a linha do cabeçalho dos SDRs.");
     if (indiceResumo === -1)       indiceResumo = linhas.length;
 
-    // DEBUG — remover após diagnóstico
-    console.log("=== CABEÇALHO (linha", indiceCabecalhoSDR, "):", JSON.stringify(linhas[indiceCabecalhoSDR]));
-    for (let i = indiceCabecalhoSDR + 1; i < indiceResumo; i++) {
-      console.log("Linha", i, ":", JSON.stringify(linhas[i]));
-    }
-
-    // Detectar índices de coluna pelo nome do cabeçalho (robusto a colunas fora de ordem)
+    /* O gviz API não retorna o texto de cabeçalhos em colunas numéricas (cell.v = null).
+       Por isso detectamos a presença da coluna Vendas pela posição do "Status":
+       - Status no índice 9  → 10 colunas → Vendas existe (F=5)
+       - Status no índice 8  → 9 colunas  → sem Vendas */
     const cabecalho = linhas[indiceCabecalhoSDR] || [];
-    const col = {};
-    cabecalho.forEach((cell, i) => {
-      const h = String(cell || "").trim().toLowerCase();
-      if (h === "sdr")                               col.nome          = i;
-      else if (h === "ativo")                        col.ativo         = i;
-      else if (h === "canal")                        col.canal         = i;
-      else if (h.includes("agendada"))               col.agendadas     = i;
-      else if (h.includes("realizada"))              col.realizadas    = i;
-      else if (h.includes("vend"))                   col.vendas        = i;
-      else if (h.includes("comparec") || h.includes("taxa")) col.comparecimento = i;
-      else if (h === "meta")                         col.meta          = i;
-      else if (h.includes("ating"))                  col.atingimento   = i;
-      else if (h === "status")                       col.status        = i;
-    });
+    const statusIdx = cabecalho.indexOf("Status");
+    const temVendas = statusIdx === 9;
 
     const sdrs = [];
     for (let i = indiceCabecalhoSDR + 1; i < indiceResumo; i++) {
       const linha = linhas[i];
-      const nome = String(linha[col.nome ?? 0] || "").trim();
+      const nome = String(linha[0] || "").trim();
       if (!nome || nome.toLowerCase() === "outros") continue;
 
-      const ativo = String(linha[col.ativo ?? 1] || "").trim().toLowerCase();
+      const ativo = String(linha[1] || "").trim().toLowerCase();
       if (ativo === "não" || ativo === "nao") continue;
 
-      sdrs.push({
-        name:           nome,
-        canal:          String(linha[col.canal ?? 2] || "").trim(),
-        agendadas:      parseNumero(linha[col.agendadas     ?? 3] ?? 0),
-        realizadas:     parseNumero(linha[col.realizadas    ?? 4] ?? 0),
-        vendas:         col.vendas        !== undefined ? parseNumero(linha[col.vendas]        ?? 0) : 0,
-        comparecimento: col.comparecimento !== undefined ? parseNumero(linha[col.comparecimento] ?? 0) : 0,
-        meta:           parseNumero(linha[col.meta          ?? (col.vendas !== undefined ? 7 : 6)] ?? 0),
-        atingimento:    parseNumero(linha[col.atingimento   ?? (col.vendas !== undefined ? 8 : 7)] ?? 0),
-        status:         String(linha[col.status             ?? (col.vendas !== undefined ? 9 : 8)] || "").trim()
-      });
+      if (temVendas) {
+        // A=0 B=1 C=2 D=3(Agend) E=4(Real) F=5(Vendas) G=6(Comparec) H=7(Meta) I=8(Ating) J=9(Status)
+        sdrs.push({
+          name:           nome,
+          canal:          String(linha[2] || "").trim(),
+          agendadas:      parseNumero(linha[3] ?? 0),
+          realizadas:     parseNumero(linha[4] ?? 0),
+          vendas:         parseNumero(linha[5] ?? 0),
+          comparecimento: 0,
+          meta:           parseNumero(linha[7] ?? 0),
+          atingimento:    parseNumero(linha[8] ?? 0),
+          status:         String(linha[9] || "").trim()
+        });
+      } else {
+        // A=0 B=1 C=2 D=3(Agend) E=4(Real) F=5(Comparec) G=6(Meta) H=7(Ating) I=8(Status)
+        sdrs.push({
+          name:           nome,
+          canal:          String(linha[2] || "").trim(),
+          agendadas:      parseNumero(linha[3] ?? 0),
+          realizadas:     parseNumero(linha[4] ?? 0),
+          vendas:         0,
+          comparecimento: 0,
+          meta:           parseNumero(linha[6] ?? 0),
+          atingimento:    parseNumero(linha[7] ?? 0),
+          status:         String(linha[8] || "").trim()
+        });
+      }
     }
 
     let totalAgendadasResumo  = 0;
