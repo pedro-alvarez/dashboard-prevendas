@@ -481,6 +481,12 @@
     if (indiceCabecalhoSDR === -1) throw new Error("Não encontrei a linha do cabeçalho dos SDRs.");
     if (indiceResumo === -1)       indiceResumo = linhas.length;
 
+    // DEBUG — remover após diagnóstico
+    console.log("=== CABEÇALHO (linha", indiceCabecalhoSDR, "):", JSON.stringify(linhas[indiceCabecalhoSDR]));
+    for (let i = indiceCabecalhoSDR + 1; i < indiceResumo; i++) {
+      console.log("Linha", i, ":", JSON.stringify(linhas[i]));
+    }
+
     // Detectar índices de coluna pelo nome do cabeçalho (robusto a colunas fora de ordem)
     const cabecalho = linhas[indiceCabecalhoSDR] || [];
     const col = {};
